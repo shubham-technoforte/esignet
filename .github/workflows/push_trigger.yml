@@ -14,7 +14,7 @@ on:
   
 jobs:
   call-workflow-codeql-analysis:
-    uses: ./.github/workflows/codeql-analysis.yml
+    uses: ./.github/workflows/codeql.yml
   build:
     needs: call-workflow-codeql-analysis
     runs-on: ubuntu-latest
@@ -74,13 +74,13 @@ jobs:
         name: release
         path: ./release.zip
 
-    - uses: 8398a7/action-slack@v3
-      with:
-        status: ${{ job.status }}
-        fields: repo,message,commit,workflow,job # selectable (default: repo,message)
-      env:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # required
-      if: failure() # Pick up events even if the job fails or is canceled.
+#    - uses: 8398a7/action-slack@v3
+#      with:
+#        status: ${{ job.status }}
+#        fields: repo,message,commit,workflow,job # selectable (default: repo,message)
+#      env:
+#        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # required
+#      if: failure() # Pick up events even if the job fails or is canceled.
 
   docker-idp:
     needs: build
@@ -139,13 +139,13 @@ jobs:
           echo VERSION=$VERSION
           docker tag $SERVICE_NAME $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
-      - uses: 8398a7/action-slack@v3
-        with:
-          status: ${{ job.status }}
-          fields: repo,message,commit,workflow,job # selectable (default: repo,message)
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_DEVOPS_WEBHOOK }} # required
-        if: failure() # Pick up events even if the job fails or is canceled.
+#      - uses: 8398a7/action-slack@v3
+#        with:
+#          status: ${{ job.status }}
+#          fields: repo,message,commit,workflow,job # selectable (default: repo,message)
+#        env:
+#          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_DEVOPS_WEBHOOK }} # required
+#        if: failure() # Pick up events even if the job fails or is canceled.
 
   publish_to_nexus:
     if: "!contains(github.ref, 'master')"
@@ -181,12 +181,12 @@ jobs:
         gpg2 --import ./.github/keys/mosipgpgkey_pub.gpg 
         gpg2 --quiet --batch --passphrase=${{secrets.gpg_secret}}  --allow-secret-key-import --import ./.github/keys/mosipgpgkey_sec.gpg 
      
-    - uses: actions/cache@v1
-      with:
-        path: ~/.m2/repository
-        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-        restore-keys: |
-          ${{ runner.os }}-maven-${{ env.BRANCH_NAME }}
+#    - uses: actions/cache@v1
+#      with:
+#        path: ~/.m2/repository
+#        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+#        restore-keys: |
+#          ${{ runner.os }}-maven-${{ env.BRANCH_NAME }}
     
     - name: Setup the settings file for ossrh server
       run: echo "<settings> <servers>  <server>  <id>ossrh</id>    <username>${{secrets.ossrh_user}}</username> <password>${{secrets.ossrh_secret}}</password> </server> </servers> <profiles> <profile>     <id>ossrh</id> <activation> <activeByDefault>true</activeByDefault> </activation>  <properties> <gpg.executable>gpg2</gpg.executable> <gpg.passphrase>${{secrets.gpg_secret}}</gpg.passphrase> </properties> </profile> <profile> <id>allow-snapshots</id>       <activation><activeByDefault>true</activeByDefault></activation> <repositories> <repository>        <id>snapshots-repo</id> <url>https://oss.sonatype.org/content/repositories/snapshots</url> <releases><enabled>false</enabled></releases> <snapshots><enabled>true</enabled></snapshots> </repository>  <repository>         <id>releases-repo</id>  <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>         <releases><enabled>true</enabled></releases>         <snapshots><enabled>false</enabled></snapshots> </repository> </repositories> <pluginRepositories>       <pluginRepository>               <id>staged-releases</id>               <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>       </pluginRepository>       </pluginRepositories> </profile> <profile> <id>sonar</id> <properties>  <sonar.sources>.</sonar.sources> <sonar.host.url>https://sonarcloud.io</sonar.host.url>  </properties> <activation> <activeByDefault>false</activeByDefault> </activation> </profile> </profiles> </settings>" > $GITHUB_WORKSPACE/settings.xml
@@ -206,13 +206,13 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
         GPG_TTY: $(tty)
 
-    - uses: 8398a7/action-slack@v3
-      with:
-        status: ${{ job.status }}
-        fields: repo,message,commit,workflow,job # selectable (default: repo,message)
-      env:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_DEVOPS_WEBHOOK }} # required
-      if: failure() # Pick up events even if the job fails or is canceled.
+#    - uses: 8398a7/action-slack@v3
+#      with:
+#        status: ${{ job.status }}
+#        fields: repo,message,commit,workflow,job # selectable (default: repo,message)
+#      env:
+#        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_DEVOPS_WEBHOOK }} # required
+#      if: failure() # Pick up events even if the job fails or is canceled.
 
   sonar_analysis:
     needs: build
@@ -253,16 +253,16 @@ jobs:
         run: |
           mvn -B -U package -s $GITHUB_WORKSPACE/settings.xml --file pom.xml
 
-      - name: Analyze with SonarCloud
-        run: |
-          mvn -B -Dgpg.skip verify sonar:sonar -Dsonar.projectKey=${{ github.event.repository.name }} -Dsonar.organization=${{ secrets.ORG_KEY }} -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=${{ secrets.SONAR_TOKEN }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      - uses: 8398a7/action-slack@v3
-        with:
-          status: ${{ job.status }}
-          fields: repo,message,commit,workflow,job # selectable (default: repo,message)
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_DEVOPS_WEBHOOK }} # required
-        if: failure() # Pick up events even if the job fails or is canceled.
+#      - name: Analyze with SonarCloud
+#        run: |
+#          mvn -B -Dgpg.skip verify sonar:sonar -Dsonar.projectKey=${{ github.event.repository.name }} -Dsonar.organization=${{ secrets.ORG_KEY }} -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+#      - uses: 8398a7/action-slack@v3
+#        with:
+#          status: ${{ job.status }}
+#          fields: repo,message,commit,workflow,job # selectable (default: repo,message)
+#        env:
+#          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_DEVOPS_WEBHOOK }} # required
+#        if: failure() # Pick up events even if the job fails or is canceled.
