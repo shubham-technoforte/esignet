@@ -26,9 +26,9 @@ jobs:
     name: Analyze
     runs-on: ubuntu-latest
     permissions:
-      actions: none
+      actions: write
       contents: read
-      security-events: none
+      security-events: write
 
     strategy:
       fail-fast: false
