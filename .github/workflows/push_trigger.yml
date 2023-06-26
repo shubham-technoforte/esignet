@@ -10,6 +10,7 @@ on:
       - 1.*
       - develop
       - main
+      - tf*
   
 jobs:
   call-workflow-codeql-analysis:
