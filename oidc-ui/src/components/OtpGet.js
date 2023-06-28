@@ -89,7 +89,7 @@ export default function OtpGet({
         transactionId,
         vid,
         otpChannels,
-        captchaToken
+        captchaToken??"random"
       );
       setStatus({ state: states.LOADED, msg: "" });
 
