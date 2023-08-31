@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       actions: none
-      contents: none
+      contents: read
       security-events: none
 
     strategy:
