@@ -1,6 +1,7 @@
 #!/bin/bash
 
 #####Downloads the zip/jar esignet adapters
+#####Downloads 
 wrapper_filename=$(basename "$esignet_wrapper_url_env")
 wget -q "${esignet_wrapper_url_env}" -O "${loader_path_env}"/"${wrapper_filename}"
 if file "${loader_path_env}"/"${wrapper_filename}" | grep -q "Zip archive"; then
